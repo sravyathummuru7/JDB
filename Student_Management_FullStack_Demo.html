@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Student Management System</title>
+<style>
+body{font-family:Arial;margin:0;background:#eef2f7;color:#172033}header{background:#2563eb;color:white;padding:25px;text-align:center}
+main{max-width:1000px;margin:25px auto;padding:15px}.card{background:white;padding:20px;margin-bottom:20px;border-radius:14px;box-shadow:0 5px 20px #0001}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}input{padding:12px;border:1px solid #ccd3dd;border-radius:8px}button{padding:10px 14px;border:0;border-radius:8px;background:#2563eb;color:white;margin:10px 5px 0 0;cursor:pointer}.del{background:#dc2626}.edit{background:#f59e0b}
+table{width:100%;border-collapse:collapse;margin-top:15px}th,td{padding:11px;border-bottom:1px solid #ddd;text-align:left}.info{line-height:1.8;background:#f8fafc;padding:15px;border-radius:8px}
+@media(max-width:700px){.grid{grid-template-columns:1fr}table{display:block;overflow:auto}}
+</style></head>
+<body>
+<header><h1>Student Management System</h1><p>Java Full-Stack Demo</p></header>
+<main>
+<div class="card"><h2 id="title">Add Student</h2>
+<form id="form"><input type="hidden" id="id"><div class="grid">
+<input id="name" placeholder="Student Name" required>
+<input id="email" type="email" placeholder="Email" required>
+<input id="course" placeholder="Course" required></div>
+<button>Save Student</button><button type="button" onclick="resetForm()">Clear</button></form><p id="msg"></p></div>
+<div class="card"><h2>Students</h2><input id="search" placeholder="Search..." oninput="render()">
+<table><thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Course</th><th>Actions</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div class="card"><h2>Architecture</h2><div class="info">
+Frontend: HTML + CSS + JavaScript<br>Backend: Java + Spring Boot<br>Architecture: Controller → Service → DAO<br>Database: MySQL<br>Connectivity: JDBC / Spring JDBC<br>Build: Maven<br>REST: GET, POST, PUT, DELETE
+</div></div>
+</main>
+<script>
+let students=JSON.parse(localStorage.getItem("students")||"[]"),next=students.length?Math.max(...students.map(x=>x.id))+1:1;
+const $=id=>document.getElementById(id);
+function save(){localStorage.setItem("students",JSON.stringify(students))}
+function render(){let q=$("search").value.toLowerCase(),a=students.filter(s=>(s.name+s.email+s.course).toLowerCase().includes(q));
+$("rows").innerHTML=a.length?a.map(s=>`<tr><td>${s.id}</td><td>${s.name}</td><td>${s.email}</td><td>${s.course}</td><td><button class="edit" onclick="edit(${s.id})">Edit</button><button class="del" onclick="del(${s.id})">Delete</button></td></tr>`).join(""):'<tr><td colspan="5">No students found</td></tr>'}
+$("form").onsubmit=e=>{e.preventDefault();let id=$("id").value,s={name:$("name").value,email:$("email").value,course:$("course").value};
+if(id){let i=students.findIndex(x=>x.id==id);students[i]={id:+id,...s};$("msg").textContent="Student updated!"}else{students.push({id:next++,...s});$("msg").textContent="Student added!"}save();resetForm();render()};
+function edit(id){let s=students.find(x=>x.id==id);$("id").value=s.id;$("name").value=s.name;$("email").value=s.email;$("course").value=s.course;$("title").textContent="Update Student";scrollTo(0,0)}
+function del(id){if(confirm("Delete this student?")){students=students.filter(x=>x.id!=id);save();render();$("msg").textContent="Student deleted!"}}
+function resetForm(){$("form").reset();$("id").value="";$("title").textContent="Add Student"}render();
+</script></body></html>
